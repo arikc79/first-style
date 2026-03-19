@@ -1,10 +1,10 @@
-# FIRST — Premium Men's Clothing
+# VAREL — Premium Men's Clothing
 
 Інтернет-магазин чоловічого одягу. Вінниця, Україна.
 
 ## Стек
 - **Frontend:** HTML / CSS / JavaScript
-- **Backend:** Node.js / Python
+- **Backend:** Python
 - **Database:** Supabase (PostgreSQL)
 - **Automation:** Make.com
 - **Hosting:** Vercel
