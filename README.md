@@ -4,7 +4,7 @@
 
 ## Стек
 - **Frontend:** HTML / CSS / JavaScript
-- **Backend:** Python
+- **Backend:** Django/ Python
 - **Database:** Supabase (PostgreSQL)
 - **Automation:** Make.com
 - **Hosting:** Vercel
@@ -20,12 +20,12 @@ first-style/
 
 ## Команда
 
-| Роль | Зона | Гілка |
-|------|------|-------|
-| Frontend | `frontend/` | `feature/frontend` |
-| Backend | `backend/` | `feature/backend` |
-| Database | `database/` | `feature/database` |
-| Automation | `automation/` | `feature/automation` |
+| Роль          | Зона          | Гілка             |
+|------         |------         |-------            |
+| Frontend      | `frontend/`   | `feature/frontend` |
+| Backend       | `backend/`    | `feature/backend` |
+| Database      | `database/`   | `feature/database` |
+| Automation    | `automation/` | `feature/automation` |
 
 ## Гілки
 ```
@@ -40,7 +40,7 @@ feature/automation
 ## Як почати
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/first-style.git
+git clone https://github.com/arikc79/first-style.git
 cd first-style
 git checkout dev
 git checkout -b feature/твоя-роль

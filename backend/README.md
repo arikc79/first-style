@@ -1,4 +1,4 @@
-# FIRST — Backend (Django)
+# VAREL — Backend (Django)
 
 ## Встановлення
 

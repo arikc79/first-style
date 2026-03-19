@@ -1,5 +1,5 @@
 {
-  "name": "FIRST — Нове замовлення",
+  "name": "VAREL — Нове замовлення",
   "description": "Webhook → Notion + Email при новому замовленні",
   "trigger": "webhook",
   "modules": [

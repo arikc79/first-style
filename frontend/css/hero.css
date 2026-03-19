@@ -21,8 +21,8 @@
 }
 .hero-content { position: relative; text-align: center; z-index: 2; }
 .hero-label { font-size: 11px; letter-spacing: 6px; text-transform: uppercase; color: var(--gold); margin-bottom: 24px; animation: fadeUp 1s ease both; }
-.hero-title { font-family: 'Cormorant Garamond', serif; font-size: clamp(72px,12vw,140px); font-weight: 300; line-height: .9; letter-spacing: -2px; animation: fadeUp 1s ease .2s both; }
-.hero-title span { color: var(--gold); font-style: italic; }
+.hero-title { font-family: 'Cormorant Garamond', serif; font-size: clamp(84px,14vw,160px); font-weight: 300; line-height: .9; letter-spacing: -2px; animation: fadeUp 1s ease .2s both; }
+.hero-title span { color: var(--gold); font-style: oblique 18deg; font-size: 0.62em; transform: skewX(-4deg); display: inline-block; }
 .hero-sub { font-size: 12px; letter-spacing: 3px; text-transform: uppercase; color: var(--grey); margin-top: 28px; animation: fadeUp 1s ease .4s both; }
 .hero-cta { margin-top: 50px; display: flex; gap: 16px; justify-content: center; animation: fadeUp 1s ease .6s both; }
 

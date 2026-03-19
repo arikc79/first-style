@@ -1,4 +1,4 @@
--- Схема бази даних FIRST
+-- Схема бази даних VAREL style
 -- Виконати в Supabase SQL Editor
 
 -- Таблиця товарів
