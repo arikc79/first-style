@@ -1,5 +1,11 @@
 // ── ДАНІ ТОВАРІВ ──
 // TODO: замінити на fetch() з API коли бекенд буде готовий
+// // Буде замість статичного масиву:
+      //const res = await fetch('/api/products')
+      //const products = await res.json()
+
+
+
 const products = [
   { id:1, name:'Slim-Fit Jeans', cat:'Джинси', emoji:'👖', price:2890, oldPrice:3500,
     desc:'Класичні чорні джинси зі стрейч-тканини. Ідеальна посадка на кожен день.',

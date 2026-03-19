@@ -1,4 +1,4 @@
-# Frontend — FIRST
+# Frontend — VAREL
 
 Зона відповідальності: **Frontend Lead**
 
