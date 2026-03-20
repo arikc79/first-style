@@ -8,10 +8,10 @@ class ProductListView(APIView):
 
     def get(self, request):
         category = request.query_params.get('category')
-        products = Product.objects.filter(in_stock=True)
+        products = Product.objects.filter(in_stock=True).prefetch_related('images')
         if category:
             products = products.filter(category=category)
-        serializer = ProductSerializer(products, many=True)
+        serializer = ProductSerializer(products, many=True, context={'request': request})
         return Response(serializer.data)
 
 class ProductDetailView(APIView):
@@ -19,8 +19,8 @@ class ProductDetailView(APIView):
 
     def get(self, request, pk):
         try:
-            product = Product.objects.get(pk=pk, in_stock=True)
+            product = Product.objects.prefetch_related('images').get(pk=pk, in_stock=True)
         except Product.DoesNotExist:
             return Response({'error': 'Товар не знайдено'}, status=404)
-        serializer = ProductSerializer(product)
+        serializer = ProductSerializer(product, context={'request': request})
         return Response(serializer.data)
