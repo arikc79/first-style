@@ -6,11 +6,12 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>{% block title %}VAREL everyday style{% endblock %}</title>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;600;700&family=Montserrat:wght@300;400;500;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="{% static 'css/main.css' %}">
-  <link rel="stylesheet" href="{% static 'css/hero.css' %}">
-  <link rel="stylesheet" href="{% static 'css/products.css' %}">
-  <link rel="stylesheet" href="{% static 'css/cart.css' %}">
-  <link rel="stylesheet" href="{% static 'css/checkout.css' %}">
+  <link rel="stylesheet" href="{% static 'css/main.css' %}?v=2">
+  <link rel="stylesheet" href="{% static 'css/hero.css' %}?v=2">
+  <link rel="stylesheet" href="{% static 'css/products.css' %}?v=2">
+  <link rel="stylesheet" href="{% static 'css/cart.css' %}?v=2">
+  <link rel="stylesheet" href="{% static 'css/checkout.css' %}?v=2">
+  <link rel="stylesheet" href="{% static 'css/lightbox.css' %}?v=2">
   {% block extra_css %}{% endblock %}
 </head>
 <body>
@@ -193,15 +194,30 @@
   </div>
 </div>
 
+<!-- ── LIGHTBOX ── -->
+<div class="lightbox" id="lightbox" onclick="closeLightbox()">
+  <button class="lb-close" onclick="closeLightbox()">✕</button>
+  <span class="lb-counter" id="lbCounter">1 / 1</span>
+  <div class="lb-area" onclick="event.stopPropagation()">
+    <button class="lb-btn" onclick="lbNav(-1)">&#10094;</button>
+    <div class="lb-viewport" id="lbViewport">
+      <div class="lb-track" id="lbTrack"></div>
+    </div>
+    <button class="lb-btn" onclick="lbNav(1)">&#10095;</button>
+  </div>
+  <div class="lb-dots" id="lbDots" onclick="event.stopPropagation()"></div>
+</div>
+
 <!-- ── TOAST ── -->
 <div class="toast" id="toast"></div>
 
-<!-- ── SCRIPTS (порядок важливий!) ── -->
+<!-- ── SCRIPTS ── -->
 <script src="{% static 'js/ui.js' %}"></script>
 <script src="{% static 'js/cart.js' %}"></script>
 <script src="{% static 'js/products.js' %}"></script>
 <script src="{% static 'js/modal.js' %}"></script>
 <script src="{% static 'js/checkout.js' %}"></script>
+<script src="{% static 'js/lightbox.js' %}"></script>
 {% block extra_js %}{% endblock %}
 
 </body>

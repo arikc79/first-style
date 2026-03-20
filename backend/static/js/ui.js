@@ -18,6 +18,7 @@ function observeFadeIns() {
 
 document.addEventListener('keydown', e => {
   if (e.key === 'Escape') {
+    closeLightbox();
     closeModal();
     closeCheckout();
     closeCart();
