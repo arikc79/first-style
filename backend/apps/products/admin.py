@@ -1,23 +1,34 @@
 from django.contrib import admin
 from django.utils.html import format_html
-from .models import Product, ProductImage
+from .models import Category, Product, ProductImage
+
+
+@admin.register(Category)
+class CategoryAdmin(admin.ModelAdmin):
+    list_display  = ['emoji', 'name', 'order', 'product_count']
+    list_editable = ['order']
+    search_fields = ['name']
+
+    def product_count(self, obj):
+        return obj.products.filter(in_stock=True).count()
+    product_count.short_description = 'Товарів'
+
 
 class ProductImageInline(admin.TabularInline):
-    model         = ProductImage
-    extra         = 1
-    max_num       = 4
-    fields        = ['image', 'order', 'preview']
+    model           = ProductImage
+    extra           = 1
+    max_num         = 4
+    fields          = ['image', 'order', 'preview']
     readonly_fields = ['preview']
 
     def preview(self, obj):
         if obj.image:
             return format_html(
-                '<img src="{}" style="height:80px;width:80px;object-fit:cover;'
-                'border-radius:6px;border:1px solid #333;" />',
+                '<img src="{}" style="height:80px;width:80px;object-fit:cover;border-radius:6px;border:1px solid #333;" />',
                 obj.image.url,
             )
         return '—'
-    preview.short_description = 'Прев\'ю'
+    preview.short_description = "Прев'ю"
 
 
 @admin.register(Product)
