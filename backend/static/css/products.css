@@ -16,12 +16,21 @@
 .products-grid { display: grid; grid-template-columns: repeat(auto-fill,minmax(280px,1fr)); gap: 24px; }
 .product-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--r); transition: all .3s; cursor: pointer; overflow: hidden; }
 .product-card:hover { border-color: var(--gold); transform: translateY(-4px); box-shadow: 0 20px 40px rgba(0,0,0,.5); }
-.product-img { width: 100%; aspect-ratio: 3/4; display: flex; align-items: center; justify-content: center; font-size: 64px; background: linear-gradient(135deg,#161616,#1e1e1e); position: relative; overflow: hidden; }
+.product-img { width: 100%; height: 260px; display: flex; align-items: center; justify-content: center; font-size: 64px; background: linear-gradient(135deg,#161616,#1e1e1e); position: relative; overflow: hidden; }
 
 /* ── CAROUSEL ── */
-.product-carousel { position: absolute; inset: 0; }
-.product-carousel img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0; transition: opacity .4s ease; pointer-events: none; user-select: none; }
-.product-carousel img.active { opacity: 1; }
+.product-carousel { position: absolute; inset: 0; overflow: hidden; }
+.carousel-track {
+  display: flex; height: 100%;
+  transition: transform .4s cubic-bezier(.25,.46,.45,.94);
+  will-change: transform;
+}
+.carousel-track img {
+  min-width: 100%; height: 100%;
+  object-fit: cover;
+  flex-shrink: 0;
+  pointer-events: none; user-select: none; -webkit-user-drag: none;
+}
 
 .carousel-btn {
   position: absolute; top: 50%; transform: translateY(-50%); z-index: 5;

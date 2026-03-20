@@ -1,26 +1,31 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from .models import Product
-from .serializers import ProductSerializer
+from .models import Category, Product
+from .serializers import CategorySerializer, ProductSerializer
+
+class CategoryListView(APIView):
+    """GET /api/categories/"""
+
+    def get(self, request):
+        cats = Category.objects.all()
+        return Response(CategorySerializer(cats, many=True).data)
 
 class ProductListView(APIView):
-    """GET /api/products/ — список товарів"""
+    """GET /api/products/"""
 
     def get(self, request):
         category = request.query_params.get('category')
-        products = Product.objects.filter(in_stock=True).prefetch_related('images')
+        qs = Product.objects.filter(in_stock=True).select_related('category').prefetch_related('images')
         if category:
-            products = products.filter(category=category)
-        serializer = ProductSerializer(products, many=True, context={'request': request})
-        return Response(serializer.data)
+            qs = qs.filter(category__name=category)
+        return Response(ProductSerializer(qs, many=True, context={'request': request}).data)
 
 class ProductDetailView(APIView):
-    """GET /api/products/<id>/ — один товар"""
+    """GET /api/products/<id>/"""
 
     def get(self, request, pk):
         try:
-            product = Product.objects.prefetch_related('images').get(pk=pk, in_stock=True)
+            product = Product.objects.select_related('category').prefetch_related('images').get(pk=pk, in_stock=True)
         except Product.DoesNotExist:
             return Response({'error': 'Товар не знайдено'}, status=404)
-        serializer = ProductSerializer(product, context={'request': request})
-        return Response(serializer.data)
+        return Response(ProductSerializer(product, context={'request': request}).data)

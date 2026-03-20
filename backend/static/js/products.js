@@ -1,6 +1,50 @@
 // ── ТОВАРИ (дані з API /api/products/) ──
 let allProducts = [];
 
+// ── CAROUSEL STATE { productId: currentIndex } ──
+const carouselState = {};
+
+// ─────────────────────────────────────────────
+// КАТЕГОРІЇ (динамічні з API)
+// ─────────────────────────────────────────────
+async function loadCategories() {
+  try {
+    const res = await fetch('/api/categories/');
+    if (!res.ok) return;
+    const cats = await res.json();
+    renderCategoryCards(cats);
+    renderFilterButtons(cats);
+  } catch (e) {
+    console.error('Категорії:', e);
+  }
+}
+
+function renderCategoryCards(cats) {
+  const grid = document.getElementById('categoriesGrid');
+  if (!grid) return;
+  grid.innerHTML = cats.map(c => `
+    <div class="cat-card" onclick="goToProducts('${c.name}')">
+      <div class="cat-img">${c.emoji}</div>
+      <div class="cat-overlay">
+        <div class="cat-name">${c.name}</div>
+        <div class="cat-count">${c.product_count} товарів</div>
+      </div>
+    </div>`).join('');
+}
+
+function renderFilterButtons(cats) {
+  const bar = document.getElementById('filtersBar');
+  if (!bar) return;
+  bar.innerHTML =
+    `<button class="filter-btn active" onclick="filterProducts('all',this)">Всі</button>` +
+    cats.map(c =>
+      `<button class="filter-btn" onclick="filterProducts('${c.name}',this)">${c.name}</button>`
+    ).join('');
+}
+
+// ─────────────────────────────────────────────
+// ПРОДУКТИ
+// ─────────────────────────────────────────────
 async function loadProducts() {
   const grid = document.getElementById('productsGrid');
   grid.innerHTML = '<p style="color:var(--grey);text-align:center;padding:60px 0">Завантаження…</p>';
@@ -10,35 +54,45 @@ async function loadProducts() {
     allProducts = await res.json();
     renderProducts('all');
   } catch (err) {
-    console.error('Помилка завантаження товарів:', err);
+    console.error('Товари:', err);
     grid.innerHTML = `
       <div style="text-align:center;padding:60px 0;color:var(--grey)">
         <div style="font-size:48px;margin-bottom:16px">⚠️</div>
-        <p>Не вдалось завантажити товари.<br>Перевірте з'єднання і оновіть сторінку.</p>
+        <p>Не вдалось завантажити товари.</p>
       </div>`;
   }
 }
 
-// ── CAROUSEL STATE ──
-const carouselState = {}; // { productId: currentIndex }
-
+// ── Медіа-блок картки ──
 function buildCardMedia(p) {
   const imgs = p.images || [];
 
-  if (!imgs.length) return `<span>${p.emoji}</span>`;
-
-  if (imgs.length === 1) {
-    return `<img src="${imgs[0].image_url}" alt="${p.name}"
-              style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;">`;
+  // Немає фото — emoji, клік відкриває модалку
+  if (!imgs.length) {
+    return `<span style="font-size:64px;pointer-events:none">${p.emoji}</span>`;
   }
 
-  // Кілька фото — карусель
+  // Одне фото — клік відкриває lightbox
+  if (imgs.length === 1) {
+    return `
+      <div style="position:absolute;inset:0;cursor:zoom-in"
+           onclick="event.stopPropagation();openLightbox(${p.id},0)">
+        <img src="${imgs[0].image_url}" alt="${p.name}"
+             style="width:100%;height:100%;object-fit:cover;pointer-events:none;">
+      </div>`;
+  }
+
+  // Кілька фото — горизонтальний slider + lightbox по кліку
   carouselState[p.id] = 0;
   return `
-    <div class="product-carousel" data-pid="${p.id}">
-      ${imgs.map((img, i) => `
-        <img src="${img.image_url}" alt="${p.name}" class="${i === 0 ? 'active' : ''}">
-      `).join('')}
+    <div class="product-carousel" data-pid="${p.id}"
+         onclick="event.stopPropagation();openLightbox(${p.id}, carouselState[${p.id}]||0)"
+         style="cursor:zoom-in">
+      <div class="carousel-track" id="ctrack-${p.id}">
+        ${imgs.map(img =>
+          `<img src="${img.image_url}" alt="${p.name}">`
+        ).join('')}
+      </div>
     </div>
     <button class="carousel-btn prev"
       onclick="event.stopPropagation();carouselNav(${p.id},-1)">&#8249;</button>
@@ -52,9 +106,9 @@ function buildCardMedia(p) {
     </div>`;
 }
 
-// ── РЕНДЕР КАРТОК ──
+// ── Рендер карток ──
 function renderProducts(filter) {
-  const grid = document.getElementById('productsGrid');
+  const grid     = document.getElementById('productsGrid');
   const filtered = filter === 'all'
     ? allProducts
     : allProducts.filter(p => p.category === filter);
@@ -71,7 +125,7 @@ function renderProducts(filter) {
         ${p.badge ? `<div class="product-badge">${p.badge}</div>` : ''}
       </div>
       <div class="product-info">
-        <div class="product-cat">${p.category}</div>
+        <div class="product-cat">${p.category || '—'}</div>
         <div class="product-name">${p.name}</div>
         <div class="product-desc">${p.description.substring(0, 80)}…</div>
         <div class="product-footer">
@@ -89,58 +143,56 @@ function renderProducts(filter) {
   observeFadeIns();
 }
 
-// ── НАВІГАЦІЯ КАРУСЕЛІ ──
+// ─────────────────────────────────────────────
+// CAROUSEL: горизонтальний slide
+// ─────────────────────────────────────────────
 function carouselNav(pid, dir) {
-  const carousel = document.querySelector(`.product-carousel[data-pid="${pid}"]`);
-  if (!carousel) return;
-  const imgs = carousel.querySelectorAll('img');
-  const dots = carousel.closest('.product-img').querySelectorAll('.carousel-dot');
-  let idx = carouselState[pid] || 0;
+  const track = document.getElementById(`ctrack-${pid}`);
+  if (!track) return;
+  const count = track.children.length;
+  const dots  = track.closest('.product-img').querySelectorAll('.carousel-dot');
+  let idx     = carouselState[pid] || 0;
 
-  imgs[idx].classList.remove('active');
   dots[idx]?.classList.remove('active');
-
-  idx = (idx + dir + imgs.length) % imgs.length;
+  idx = (idx + dir + count) % count;
   carouselState[pid] = idx;
 
-  imgs[idx].classList.add('active');
+  track.style.transform = `translateX(-${idx * 100}%)`;
   dots[idx]?.classList.add('active');
 }
 
 function carouselGo(pid, idx) {
-  const carousel = document.querySelector(`.product-carousel[data-pid="${pid}"]`);
-  if (!carousel) return;
-  const imgs = carousel.querySelectorAll('img');
-  const dots = carousel.closest('.product-img').querySelectorAll('.carousel-dot');
+  const track = document.getElementById(`ctrack-${pid}`);
+  if (!track) return;
+  const dots = track.closest('.product-img').querySelectorAll('.carousel-dot');
   const cur  = carouselState[pid] || 0;
 
-  imgs[cur].classList.remove('active');
   dots[cur]?.classList.remove('active');
-  imgs[idx].classList.add('active');
+  track.style.transform = `translateX(-${idx * 100}%)`;
   dots[idx]?.classList.add('active');
   carouselState[pid] = idx;
 }
 
-// ── SWIPE (мобільний) ──
+// Touch swipe у картках
 function initCarouselSwipe() {
   document.querySelectorAll('.product-carousel').forEach(el => {
-    let startX = 0;
-    el.addEventListener('touchstart', e => { startX = e.touches[0].clientX; }, { passive: true });
+    let sx = 0;
+    el.addEventListener('touchstart', e => { sx = e.touches[0].clientX; }, { passive: true });
     el.addEventListener('touchend', e => {
-      const diff = startX - e.changedTouches[0].clientX;
+      const diff = sx - e.changedTouches[0].clientX;
       if (Math.abs(diff) > 40) carouselNav(Number(el.dataset.pid), diff > 0 ? 1 : -1);
     });
   });
 }
 
-// ── ФІЛЬТР ──
+// ── Фільтр ──
 function filterProducts(cat, btn) {
   document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
   renderProducts(cat);
 }
 
-// ── ПЕРЕХІД З КАТЕГОРІЙ ──
+// ── Перехід з категорій ──
 function goToProducts(cat) {
   document.querySelectorAll('.filter-btn').forEach(b => {
     b.classList.remove('active');
@@ -150,7 +202,7 @@ function goToProducts(cat) {
   document.getElementById('products').scrollIntoView({ behavior: 'smooth' });
 }
 
-// ── ШВИДКЕ ДОДАВАННЯ ──
+// ── Швидке додавання ──
 function quickAdd(id) {
   const p = allProducts.find(x => x.id === id);
   if (!p) return;
@@ -158,5 +210,6 @@ function quickAdd(id) {
   showToast('✓ ' + p.name + ' — додано до кошика');
 }
 
-// ── СТАРТ ──
+// ── Старт ──
+loadCategories();
 loadProducts();
