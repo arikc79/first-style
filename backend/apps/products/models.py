@@ -17,6 +17,8 @@ class Product(models.Model):
     description = models.TextField()
     emoji       = models.CharField(max_length=10, default='👔')
     sizes       = models.JSONField(default=list)
+    details     = models.JSONField(default=dict, blank=True,
+                                   help_text='{"Склад":"...", "Країна":"...", "Колір":"..."}')
     badge       = models.CharField(max_length=50, blank=True)
     in_stock    = models.BooleanField(default=True)
     created_at  = models.DateTimeField(auto_now_add=True)
