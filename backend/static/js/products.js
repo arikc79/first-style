@@ -67,27 +67,24 @@ async function loadProducts() {
 function buildCardMedia(p) {
   const imgs = p.images || [];
 
-  // Немає фото — emoji, клік відкриває модалку
+  // Немає фото — emoji
   if (!imgs.length) {
     return `<span style="font-size:64px;pointer-events:none">${p.emoji}</span>`;
   }
 
-  // Одне фото — клік відкриває lightbox
+  // Одне фото — просте зображення (клік на картці навігує на сторінку)
   if (imgs.length === 1) {
     return `
-      <div style="position:absolute;inset:0;cursor:zoom-in"
-           onclick="event.stopPropagation();openLightbox(${p.id},0)">
+      <div style="position:absolute;inset:0;pointer-events:none">
         <img src="${imgs[0].image_url}" alt="${p.name}"
              style="width:100%;height:100%;object-fit:cover;pointer-events:none;">
       </div>`;
   }
 
-  // Кілька фото — горизонтальний slider + lightbox по кліку
+  // Кілька фото — горизонтальний slider (без lightbox на кліку)
   carouselState[p.id] = 0;
   return `
-    <div class="product-carousel" data-pid="${p.id}"
-         onclick="event.stopPropagation();openLightbox(${p.id}, carouselState[${p.id}]||0)"
-         style="cursor:zoom-in">
+    <div class="product-carousel" data-pid="${p.id}">
       <div class="carousel-track" id="ctrack-${p.id}">
         ${imgs.map(img =>
           `<img src="${img.image_url}" alt="${p.name}">`
@@ -119,7 +116,7 @@ function renderProducts(filter) {
   }
 
   grid.innerHTML = filtered.map(p => `
-    <div class="product-card fade-in" onclick="openModal(${p.id})">
+    <div class="product-card fade-in" onclick="window.location.href='/product/${p.id}/'">
       <div class="product-img">
         ${buildCardMedia(p)}
         ${p.badge ? `<div class="product-badge">${p.badge}</div>` : ''}
@@ -210,6 +207,8 @@ function quickAdd(id) {
   showToast('✓ ' + p.name + ' — додано до кошика');
 }
 
-// ── Старт ──
-loadCategories();
-loadProducts();
+// ── Старт (тільки на головній сторінці) ──
+if (document.getElementById('productsGrid')) {
+  loadCategories();
+  loadProducts();
+}
